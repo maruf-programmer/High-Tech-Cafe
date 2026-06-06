@@ -1,41 +1,192 @@
 {% extends 'staff/base_staff.html' %}
 
-{% block title %}Stollar - Cafe Admin{% endblock %}
-{% block page_title %}Stollar boshqaruvi{% endblock %}
+{% block title %}Stollar Boshqaruvi - Smart Cafe Admin{% endblock %}
+{% block page_title %}Stollar Boshqaruvi{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --deep-green: #064e3b;
+        --glass: rgba(255, 255, 255, 0.1);
+        --glass-border: rgba(255, 255, 255, 0.2);
+    }
+
+    body {
+        background: linear-gradient(rgba(6, 78, 59, 0.9), rgba(6, 78, 59, 0.95)), 
+                    url('https://images.unsplash.com/photo-1414235077428-338989a2e8c0?ixlib=rb-1.2.1&auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+        background-size: cover;
+        color: #fff;
+    }
+
+    .main-content {
+        background: transparent !important;
+    }
+
+    .page-title h1, .page-title p {
+        color: #fff !important;
+    }
+
+    .glass-card {
+        background: var(--glass);
+        backdrop-filter: blur(15px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 30px;
+        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        margin-bottom: 30px;
+    }
+
+    .add-table-form {
+        display: flex;
+        gap: 20px;
+        align-items: flex-end;
+        flex-wrap: wrap;
+    }
+
+    .form-group {
+        flex: 1;
+        min-width: 200px;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: 10px;
+        font-weight: 600;
+        font-size: 0.9rem;
+    }
+
+    .form-control {
+        width: 100%;
+        padding: 12px 20px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid var(--glass-border);
+        border-radius: 12px;
+        color: #fff;
+        outline: none;
+    }
+
+    .btn-add {
+        background: #10b981;
+        color: white;
+        padding: 12px 30px;
+        border-radius: 12px;
+        border: none;
+        font-weight: 700;
+        cursor: pointer;
+        transition: 0.3s;
+    }
+
+    .btn-add:hover {
+        background: #059669;
+        transform: scale(1.05);
+    }
+
+    .table-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+        gap: 25px;
+    }
+
+    .table-card {
+        background: var(--glass);
+        backdrop-filter: blur(10px);
+        border: 1px solid var(--glass-border);
+        border-radius: 24px;
+        padding: 25px;
+        text-align: center;
+        transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        position: relative;
+        overflow: hidden;
+    }
+
+    .table-card:hover {
+        transform: translateY(-10px);
+        border-color: #10b981;
+        box-shadow: 0 15px 45px rgba(0,0,0,0.4);
+    }
+
+    .status-icon {
+        width: 60px;
+        height: 60px;
+        line-height: 60px;
+        border-radius: 50%;
+        background: rgba(255,255,255,0.1);
+        margin: 0 auto 15px;
+        font-size: 1.5rem;
+    }
+
+    .status-free { color: #10b981; text-shadow: 0 0 10px rgba(16, 185, 129, 0.5); }
+    .status-occupied { color: #ef4444; text-shadow: 0 0 10px rgba(239, 68, 68, 0.5); }
+    .status-reserved { color: #f59e0b; text-shadow: 0 0 10px rgba(245, 158, 11, 0.5); }
+
+    .status-select {
+        width: 100%;
+        background: rgba(0,0,0,0.3);
+        color: #fff;
+        border: 1px solid var(--glass-border);
+        padding: 10px;
+        border-radius: 10px;
+        margin: 15px 0;
+        cursor: pointer;
+    }
+
+    .qr-link {
+        display: block;
+        padding: 10px;
+        background: rgba(255,255,255,0.05);
+        border-radius: 10px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.8rem;
+        transition: 0.3s;
+    }
+
+    .qr-link:hover {
+        background: #fff;
+        color: var(--deep-green);
+    }
+</style>
+{% endblock %}
 
 {% block content %}
-<div class="card" style="margin-bottom: 30px; padding: 20px;">
-    <h3 style="margin-bottom: 15px;"><i class="fas fa-plus-circle"></i> Yangi stol qo'shish</h3>
-    <form action="{% url 'core:add_table' %}" method="POST" style="display: flex; gap: 15px; align-items: flex-end;">
+<div class="glass-card">
+    <h3 style="margin-bottom: 20px;"><i class="fas fa-tools"></i> Yangi Stol O'rnatish</h3>
+    <form action="{% url 'core:add_table' %}" method="POST" class="add-table-form">
         {% csrf_token %}
-        <div style="flex: 1;">
-            <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Stol raqami</label>
-            <input type="number" name="number" required class="btn btn-outline" style="width: 100%; text-align: left; background: rgba(255,255,255,0.05);">
+        <div class="form-group">
+            <label>Stol Raqami</label>
+            <input type="number" name="number" placeholder="Masalan: 12" required class="form-control">
         </div>
-        <button type="submit" class="btn btn-primary" style="padding: 12px 25px;">
-            <i class="fas fa-plus"></i> Qo'shish
+        <button type="submit" class="btn-add">
+            <i class="fas fa-plus"></i> Stol Qo'shish
         </button>
     </form>
 </div>
 
-<div class="stats-grid">
+<div class="table-grid">
     {% for table in tables %}
-    <div class="card" style="padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center;">
-        <i class="fas fa-chair" style="font-size: 2rem; color: {% if table.status == 'free' %}var(--success){% elif table.status == 'occupied' %}var(--danger){% else %}var(--warning){% endif %}; margin-bottom: 10px;"></i>
-        <h3 style="margin-bottom: 5px;">Stol #{{ table.number }}</h3>
-        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">{{ table.get_status_display }}</p>
+    <div class="table-card">
+        <div class="status-icon">
+            <i class="fas fa-chair {% if table.status == 'free' %}status-free{% elif table.status == 'occupied' %}status-occupied{% else %}status-reserved{% endif %}"></i>
+        </div>
+        <h3 style="font-size: 1.5rem; margin-bottom: 5px;">Stol #{{ table.number }}</h3>
+        <span style="font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1px; color: rgba(255,255,255,0.6);">
+            {{ table.get_status_display }}
+        </span>
         
-        <form action="{% url 'core:update_table_status' table.id %}" method="POST" style="width: 100%;">
+        <form action="{% url 'core:update_table_status' table.id %}" method="POST">
             {% csrf_token %}
-            <select name="status" onchange="this.form.submit()" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; margin-bottom: 10px;">
-                <option value="free" {% if table.status == 'free' %}selected{% endif %}>Bo'shatish</option>
-                <option value="occupied" {% if table.status == 'occupied' %}selected{% endif %}>Band qilish</option>
-                <option value="reserved" {% if table.status == 'reserved' %}selected{% endif %}>Bron qilish</option>
-                <option value="cleaning" {% if table.status == 'cleaning' %}selected{% endif %}>Tozalash</option>
+            <select name="status" onchange="this.form.submit()" class="status-select">
+                <option value="free" {% if table.status == 'free' %}selected{% endif %}>Bo'sh (Free)</option>
+                <option value="occupied" {% if table.status == 'occupied' %}selected{% endif %}>Band (Occupied)</option>
+                <option value="reserved" {% if table.status == 'reserved' %}selected{% endif %}>Bron (Reserved)</option>
+                <option value="cleaning" {% if table.status == 'cleaning' %}selected{% endif %}>Tozalash (Cleaning)</option>
             </select>
         </form>
         
-        <a href="{% url 'core:menu' table.id %}" target="_blank" class="btn btn-outline" style="width: 100%; font-size: 0.75rem;"><i class="fas fa-qrcode"></i> QR menyu</a>
+        <a href="{% url 'core:menu' table.id %}" target="_blank" class="qr-link">
+            <i class="fas fa-qrcode"></i> QR Menyu Ko'rish
+        </a>
     </div>
     {% endfor %}
 </div>

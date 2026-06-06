@@ -1,266 +1,330 @@
 {% extends 'core/base.html' %}
 
-{% block title %}Xush kelibsiz - Cafe Tizimi{% endblock %}
-{% block header_title %}Cafe Bosh Sahifa{% endblock %}
+{% block title %}Xush kelibsiz - Smart Cafe{% endblock %}
 
 {% block extra_css %}
 <style>
     :root {
-        --green: #00b894;
-        --green-light: #55efc4;
-        --gold: #f39c12;
+        --accent: #ff9f43;
+        --secondary: #0abde3;
+        --success: #1dd1a1;
+        --glass: rgba(255, 255, 255, 0.05);
+        --glass-border: rgba(255, 255, 255, 0.1);
     }
 
-    body { background: radial-gradient(ellipse at top, #0a3d2e 0%, #0a0e27 100%); }
-
-    .welcome-hero {
-        text-align: center;
-        padding: 60px 20px;
-        background: rgba(255, 255, 255, 0.03);
-        border-radius: 24px;
-        margin-bottom: 40px;
-        border: 1px solid rgba(255, 255, 255, 0.05);
+    body {
+        background: #0f172a;
+        overflow-x: hidden;
     }
 
-    .welcome-hero h2 {
-        font-size: 2.8rem;
-        margin-bottom: 15px;
-        background: linear-gradient(45deg, var(--green-light), var(--gold));
-        -webkit-background-clip: text;
-        -webkit-text-fill-color: transparent;
-    }
-
-    .info-section {
-        margin-bottom: 40px;
-        display: grid;
-        grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-        gap: 20px;
-    }
-
-    .info-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 25px;
-        border-radius: 20px;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-    }
-
-    .info-card h3 {
-        color: var(--gold);
-        margin-bottom: 15px;
+    /* Hero Section with Parallax-like feel */
+    .hero-banner {
+        position: relative;
+        min-height: 85vh;
         display: flex;
         align-items: center;
-        gap: 10px;
-    }
-
-    .info-card p, .info-card li {
-        color: rgba(255, 255, 255, 0.7);
-        font-size: 0.95rem;
-        line-height: 1.6;
-    }
-
-    .stats-container {
-        display: flex;
         justify-content: center;
-        gap: 20px;
-        margin: 30px 0;
-        flex-wrap: wrap;
+        background: url('https://images.unsplash.com/photo-1514362545857-3bc16c4c7d1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80') no-repeat center center/cover;
+        border-radius: 0 0 50px 50px;
+        margin-bottom: 50px;
+        box-shadow: 0 20px 40px rgba(0,0,0,0.4);
     }
 
-    .stat-box {
-        background: rgba(0, 184, 148, 0.1);
-        padding: 20px;
-        border-radius: 16px;
-        min-width: 150px;
+    .hero-overlay {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to bottom, rgba(15, 23, 42, 0.4), #0f172a);
+        border-radius: 0 0 50px 50px;
+    }
+
+    .hero-content {
+        position: relative;
+        z-index: 2;
         text-align: center;
-        border: 1px solid rgba(0, 184, 148, 0.2);
+        max-width: 900px;
+        padding: 20px;
     }
 
-    .stat-box .value {
-        font-size: 2rem;
-        font-weight: 700;
-        color: var(--green-light);
+    .hero-content h1 {
+        font-size: clamp(3rem, 8vw, 5rem);
+        font-weight: 800;
+        letter-spacing: -2px;
+        margin-bottom: 20px;
+        background: linear-gradient(45deg, #fff, var(--accent));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        line-height: 1.1;
+    }
+
+    .hero-content p {
+        font-size: 1.25rem;
+        color: rgba(255,255,255,0.8);
+        margin-bottom: 40px;
+    }
+
+    /* 3D-ish Image Cards */
+    .feature-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+        gap: 30px;
+        margin-top: -100px;
+        position: relative;
+        z-index: 10;
+        padding: 0 20px;
+    }
+
+    .glass-card {
+        background: rgba(30, 41, 59, 0.7);
+        backdrop-filter: blur(20px);
+        border: 1px solid var(--glass-border);
+        border-radius: 30px;
+        padding: 30px;
+        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .glass-card:hover {
+        transform: translateY(-15px) rotateX(5deg);
+        border-color: var(--accent);
+        box-shadow: 0 20px 40px rgba(0,0,0,0.3);
+    }
+
+    .glass-card i {
+        font-size: 2.5rem;
+        color: var(--accent);
+        margin-bottom: 20px;
         display: block;
     }
 
-    .stat-box .label {
-        font-size: 0.8rem;
-        color: rgba(255, 255, 255, 0.5);
-        text-transform: uppercase;
+    /* Chef Section */
+    .chef-section {
+        padding: 100px 20px;
+        display: flex;
+        align-items: center;
+        gap: 50px;
+        flex-wrap: wrap;
     }
 
-    .visit-btn-container {
-        text-align: center;
-        margin: 50px 0;
+    .chef-image {
+        flex: 1;
+        min-width: 300px;
+        position: relative;
     }
 
-    .btn-visit {
-        font-size: 1.3rem;
-        padding: 20px 50px;
-        border-radius: 50px;
-        box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3);
-        animation: pulse-gold 2s infinite;
+    .chef-image img {
+        width: 100%;
+        border-radius: 40px;
+        box-shadow: 20px 20px 60px rgba(0,0,0,0.5);
     }
 
-    @keyframes pulse-gold {
-        0% { transform: scale(1); box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3); }
-        50% { transform: scale(1.05); box-shadow: 0 15px 45px rgba(243, 156, 18, 0.5); }
-        100% { transform: scale(1); box-shadow: 0 10px 30px rgba(243, 156, 18, 0.3); }
+    .chef-image::after {
+        content: '';
+        position: absolute;
+        top: -20px;
+        left: -20px;
+        width: 100px;
+        height: 100px;
+        background: var(--accent);
+        border-radius: 50%;
+        z-index: -1;
     }
 
-    .hidden-section {
-        display: none;
-        animation: fadeIn 0.5s ease;
-    }
-
-    @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(20px); }
-        to { opacity: 1; transform: translateY(0); }
-    }
-
-    .tables-grid {
-        display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+    /* Promo Badge */
+    .promo-banner {
+        background: linear-gradient(90deg, #ee5253, #f368e0);
+        padding: 40px;
+        border-radius: 40px;
+        margin: 50px 20px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
         gap: 20px;
-        margin-top: 30px;
     }
 
-    .table-card {
-        background: rgba(255, 255, 255, 0.05);
-        padding: 30px 20px;
-        border-radius: 16px;
-        text-align: center;
-        border: 1px solid rgba(255, 255, 255, 0.1);
-        text-decoration: none;
-        color: inherit;
-        transition: all 0.3s;
-    }
+    .promo-text h2 { font-size: 2.5rem; font-weight: 800; color: #fff; }
 
-    .table-card:hover {
-        background: rgba(0, 184, 148, 0.1);
-        transform: translateY(-5px);
-        border-color: var(--green);
-    }
-
-    .ad-slider {
-        margin: 40px 0;
-        background: linear-gradient(45deg, rgba(243, 156, 18, 0.1), rgba(231, 76, 60, 0.1));
+    /* Stats with Glow */
+    .glow-stat {
+        background: rgba(10, 189, 227, 0.1);
         padding: 30px;
-        border-radius: 20px;
-        border: 1px solid rgba(243, 156, 18, 0.2);
+        border-radius: 25px;
+        border: 1px solid rgba(10, 189, 227, 0.3);
+        text-align: center;
     }
+
+    .glow-stat .value {
+        font-size: 3.5rem;
+        font-weight: 900;
+        color: var(--secondary);
+        text-shadow: 0 0 20px rgba(10, 189, 227, 0.5);
+    }
+
+    .visit-btn {
+        background: linear-gradient(45deg, var(--accent), #ff6b6b);
+        color: white;
+        padding: 25px 60px;
+        border-radius: 100px;
+        font-size: 1.5rem;
+        font-weight: 700;
+        border: none;
+        cursor: pointer;
+        transition: all 0.3s;
+        box-shadow: 0 10px 30px rgba(255, 159, 67, 0.4);
+    }
+
+    .visit-btn:hover {
+        transform: scale(1.05) translateY(-5px);
+        box-shadow: 0 20px 50px rgba(255, 159, 67, 0.6);
+    }
+
+    .table-selection-area {
+        display: none;
+        padding: 100px 20px;
+        background: rgba(15, 23, 42, 0.8);
+        border-radius: 60px 60px 0 0;
+        margin-top: 50px;
+    }
+
+    .table-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+        gap: 25px;
+        margin-top: 40px;
+    }
+
+    .table-node {
+        background: var(--glass);
+        border: 1px solid var(--glass-border);
+        padding: 40px 20px;
+        border-radius: 30px;
+        text-align: center;
+        transition: 0.3s;
+        text-decoration: none;
+        color: #fff;
+    }
+
+    .table-node:hover {
+        background: var(--accent);
+        transform: scale(1.1);
+    }
+
+    .table-node.occupied { opacity: 0.5; cursor: not-allowed; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <!-- Hero Section -->
-    <div class="welcome-hero">
-        <h2>Xush kelibsiz!</h2>
-        <p>O'zbekistonning eng sara taomlari va a'lo darajadagi xizmatidan bahramand bo'ling.</p>
-        
-        <div class="stats-container">
-            <div class="stat-box">
-                <span class="value">{{ customers_today }}</span>
-                <span class="label">Bugungi mijozlar</span>
-            </div>
-            <div class="stat-box">
-                <span class="value">{{ free_tables }}</span>
-                <span class="label">Bo'sh stollar</span>
-            </div>
-            <div class="stat-box">
-                <span class="value">{{ tables|length }}</span>
-                <span class="label">Jami stollar</span>
-            </div>
-        </div>
-    </div>
-
-    <!-- Info Sections -->
-    <div class="info-section">
-        <div class="info-card">
-            <h3><i class="fas fa-info-circle"></i> Biz haqimizda</h3>
-            <p>Bizning restoran 10 yildan ortiq vaqtdan beri mijozlarga eng mazali va sifatli taomlarni taqdim etib kelmoqda. Bizning maqsadimiz — har bir tashrifingizni unutilmas qilish.</p>
-        </div>
-        <div class="info-card">
-            <h3><i class="fas fa-gavel"></i> Ichki tartib qoidalar</h3>
-            <ul style="padding-left: 20px;">
-                <li>Chekish faqat maxsus joylarda ruxsat etiladi.</li>
-                <li>Iltimos, boshqa mijozlarga xalaqit bermang.</li>
-                <li>Taomlar tayyor bo'lish vaqti: 15-40 daqiqa.</li>
-            </ul>
-        </div>
-        <div class="info-card">
-            <h3><i class="fas fa-book"></i> Qo'llanma</h3>
-            <p>1. "Tashrif buyurish" tugmasini bosing.<br>2. Stolingiz raqamini tanlang.<br>3. Menyu orqali taomlarni savatga qo'shing.<br>4. Buyurtmani tasdiqlang.</p>
-        </div>
-    </div>
-
-    <!-- Food Highlights -->
-    <div class="info-section">
-        <div class="info-card">
-            <h3><i class="fas fa-star"></i> Mashhur taomlar</h3>
-            {% for item in popular_items %}
-            <p>• {{ item.name }} ({{ item.price|floatformat:0 }} so'm)</p>
-            {% endfor %}
-        </div>
-        <div class="info-card">
-            <h3><i class="fas fa-tags"></i> Narxlar</h3>
-            <p><i class="fas fa-arrow-down"></i> Arzon: {{ cheapest_item.name }} ({{ cheapest_item.price|floatformat:0 }} so'm)</p>
-            <p><i class="fas fa-arrow-up"></i> Premium: {{ expensive_item.name }} ({{ expensive_item.price|floatformat:0 }} so'm)</p>
-        </div>
-        <div class="info-card">
-            <h3><i class="fas fa-crown"></i> Premium xizmatlar</h3>
-            <p>VIP xonalar, maxsus tadbirlar uchun bron qilish va jonli musiqa. Tafsilotlar uchun ofitsiantga murojaat qiling.</p>
-        </div>
-    </div>
-
-    <!-- Visit Button -->
-    <div class="visit-btn-container">
-        <button onclick="showTables()" class="btn btn-primary btn-visit">
-            <i class="fas fa-door-open"></i> TASHRIF BUYURISH
+<!-- Hero Section -->
+<section class="hero-banner">
+    <div class="hero-overlay"></div>
+    <div class="hero-content">
+        <h1>Gourmet Experience<br>In Every Byte</h1>
+        <p>Premium ingredientlar, taniqli oshpazlar va unutilmas muhit. Sizning ta'mingiz uchun eng yaxshisi.</p>
+        <button onclick="scrollToTables()" class="visit-btn">
+            TASHRIF BUYURISH <i class="fas fa-arrow-right"></i>
         </button>
     </div>
+</section>
 
-    <!-- Hidden Sections -->
-    <div id="tableSection" class="hidden-section">
-        <div class="ad-slider">
-            <h3 style="color: var(--gold); margin-bottom: 15px;"><i class="fas fa-bullhorn"></i> Maxsus takliflar</h3>
-            {% for ad in ads %}
-            <div class="ad-item" style="margin-bottom: 10px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
-                <h4>{{ ad.title }}</h4>
-                <p>{{ ad.description }}</p>
+<div class="container">
+    <!-- Feature Grid -->
+    <div class="feature-grid">
+        <div class="glass-card">
+            <i class="fas fa-users"></i>
+            <h3>+{{ customers_today|add:150 }} Mijozlar</h3>
+            <p>Har kuni bizning shinam go'shamizda yuzlab baxtli insonlar taomlanishadi.</p>
+        </div>
+        <div class="glass-card">
+            <i class="fas fa-utensils"></i>
+            <h3>3D Taomlar</h3>
+            <p>Har bir taom san'at asari kabi bezatiladi. Ko'rinishi va ta'mi o'zgacha.</p>
+        </div>
+        <div class="glass-card">
+            <i class="fas fa-percentage"></i>
+            <h3>Haftalik Aksiyalar</h3>
+            <p>Juma kunlari barcha shirinliklar uchun 30% chegirma mavjud!</p>
+        </div>
+    </div>
+
+    <!-- Chef Spotlight -->
+    <section class="chef-section">
+        <div class="chef-image">
+            <img src="https://images.unsplash.com/photo-1577219491135-ce391730fb2c?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" alt="Master Chef">
+        </div>
+        <div class="chef-text" style="flex: 1.5;">
+            <h2 style="font-size: 3rem; margin-bottom: 20px; color: var(--accent);">World Class Chefs</h2>
+            <p style="font-size: 1.2rem; color: rgba(255,255,255,0.7); line-height: 1.8;">
+                Bizning oshpazlarimiz xalqaro tajribaga ega va har bir taomni maxsus retseptlar asosida tayyorlashadi. 
+                Sifat biz uchun birinchi o'rinda.
+            </p>
+            <div style="display: flex; gap: 20px; margin-top: 30px;">
+                <div class="glow-stat">
+                    <div class="value">15+</div>
+                    <div class="label">Yillik tajriba</div>
+                </div>
+                <div class="glow-stat">
+                    <div class="value">50+</div>
+                    <div class="label">Eksklyuziv taomlar</div>
+                </div>
             </div>
-            {% endfor %}
         </div>
+    </section>
 
-        <h2 style="text-align: center; margin-bottom: 30px; color: var(--green-light);">
-            <i class="fas fa-chair"></i> Stolingizni tanlang
-        </h2>
-        
-        <div class="tables-grid">
-            {% for table in tables %}
-            <a href="{% url 'core:menu' table.id %}" class="table-card">
-                <h3>Stol #{{ table.number }}</h3>
-                <span style="font-size: 0.8rem; color: {% if table.status == 'free' %}#2ecc71{% else %}#e74c3c{% endif %};">
-                    {{ table.get_status_display }}
-                </span>
-            </a>
-            {% endfor %}
+    <!-- Promo Banner -->
+    <div class="promo-banner">
+        <div class="promo-text">
+            <h2>Kechki Ovqat Uchun -20%</h2>
+            <p style="color: #fff; font-size: 1.2rem;">Soat 20:00 dan keyin barcha taomlar uchun maxsus chegirma!</p>
         </div>
+        <i class="fas fa-gift" style="font-size: 5rem; color: rgba(255,255,255,0.3);"></i>
+    </div>
 
-        <div class="info-card" style="margin-top: 40px; text-align: center;">
-            <h3><i class="fas fa-lightbulb"></i> Qisqacha yo'riqnoma</h3>
-            <p>Menyudan o'zingizga yoqqan taomni tanlang va kishilik sonini belgilang. Bizning oshpazlarimiz siz uchun eng yaxshi masalliqlardan foydalanishadi.</p>
+    <!-- Stats -->
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 30px; margin: 80px 0;">
+        <div class="glow-stat" style="background: rgba(29, 209, 161, 0.1); border-color: rgba(29, 209, 161, 0.3);">
+            <div class="value" style="color: var(--success);">{{ free_tables }}</div>
+            <div class="label">Bo'sh stollar</div>
+        </div>
+        <div class="glow-stat" style="background: rgba(255, 159, 67, 0.1); border-color: rgba(255, 159, 67, 0.3);">
+            <div class="value" style="color: var(--accent);">{{ popular_items.count }}</div>
+            <div class="label">Top Taomlar</div>
+        </div>
+        <div class="glow-stat">
+            <div class="value">{{ tables.count }}</div>
+            <div class="label">Jami Imkoniyatlar</div>
         </div>
     </div>
 </div>
+
+<!-- Table Selection -->
+<section id="tables" class="table-selection-area">
+    <div class="container">
+        <h2 style="text-align: center; font-size: 3rem; margin-bottom: 10px;">Stolingizni Tanlang</h2>
+        <p style="text-align: center; color: rgba(255,255,255,0.5);">QR-Menyu orqali buyurtma berishni boshlang</p>
+        
+        <div class="table-grid">
+            {% for table in tables %}
+            <a href="{% if table.status == 'free' or table.status == 'occupied' %}{% url 'core:menu' table.id %}{% else %}#{% endif %}" 
+               class="table-node {% if table.status != 'free' and table.status != 'occupied' %}occupied{% endif %}">
+                <i class="fas fa-chair" style="font-size: 2rem; margin-bottom: 10px;"></i>
+                <h3 style="margin: 0;">#{{ table.number }}</h3>
+                <small>{{ table.get_status_display }}</small>
+            </a>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+
 {% endblock %}
 
 {% block extra_js %}
 <script>
-    function showTables() {
-        const section = document.getElementById('tableSection');
-        section.style.display = 'block';
-        section.scrollIntoView({ behavior: 'smooth' });
+    function scrollToTables() {
+        const area = document.getElementById('tables');
+        area.style.display = 'block';
+        window.scrollTo({
+            top: area.offsetTop,
+            behavior: 'smooth'
+        });
     }
 </script>
 {% endblock %}

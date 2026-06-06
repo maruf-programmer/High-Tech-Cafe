@@ -1,40 +1,169 @@
 {% extends 'staff/base_staff.html' %}
 
-{% block title %}Dashboard - Cafe Admin{% endblock %}
-{% block page_title %}Dashboard{% endblock %}
+{% block title %}Dashboard - Smart Cafe Admin{% endblock %}
+{% block page_title %}Operational Dashboard{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --bg: #f8fafc;
+        --card-bg: #ffffff;
+        --primary: #4f46e5;
+        --secondary: #64748b;
+        --success: #10b981;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+    }
+
+    body { background-color: var(--bg); color: #1e293b; }
+
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+
+    .stat-card {
+        background: var(--card-bg);
+        padding: 24px;
+        border-radius: 20px;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+        border: 1px solid #e2e8f0;
+        display: flex;
+        flex-direction: column;
+        transition: transform 0.2s;
+    }
+
+    .stat-card:hover { transform: translateY(-5px); }
+
+    .stat-card .label {
+        font-size: 0.875rem;
+        font-weight: 600;
+        color: var(--secondary);
+        text-transform: uppercase;
+        letter-spacing: 0.025em;
+        margin-bottom: 8px;
+    }
+
+    .stat-card .value {
+        font-size: 2.25rem;
+        font-weight: 800;
+        color: #0f172a;
+    }
+
+    .stat-card.primary { border-left: 6px solid var(--primary); }
+    .stat-card.success { border-left: 6px solid var(--success); }
+    .stat-card.warning { border-left: 6px solid var(--warning); }
+    .stat-card.danger { border-left: 6px solid var(--danger); }
+
+    .grid-layout {
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        gap: 24px;
+    }
+
+    .card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        border: 1px solid #e2e8f0;
+        overflow: hidden;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+    }
+
+    .card-header {
+        padding: 20px 24px;
+        background: #f1f5f9;
+        border-bottom: 1px solid #e2e8f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-header h3 { font-size: 1.125rem; font-weight: 700; color: #334155; margin: 0; }
+
+    .table-responsive { padding: 0; }
+    
+    table { width: 100%; border-collapse: collapse; }
+    th { text-align: left; padding: 12px 24px; background: #f8fafc; font-size: 0.75rem; text-transform: uppercase; color: var(--secondary); border-bottom: 1px solid #e2e8f0; }
+    td { padding: 16px 24px; font-size: 0.875rem; border-bottom: 1px solid #f1f5f9; }
+
+    .badge {
+        padding: 4px 12px;
+        border-radius: 9999px;
+        font-size: 0.75rem;
+        font-weight: 600;
+    }
+
+    .badge-pending { background: #fef3c7; color: #92400e; }
+    .badge-success { background: #d1fae5; color: #065f46; }
+
+    .btn-action {
+        padding: 6px 16px;
+        border-radius: 8px;
+        font-size: 0.875rem;
+        font-weight: 600;
+        text-decoration: none;
+        transition: 0.2s;
+    }
+
+    .btn-resolve { background: var(--primary); color: white; border: none; }
+    .btn-resolve:hover { background: #4338ca; }
+</style>
+{% endblock %}
 
 {% block content %}
 <div class="stats-grid">
-    <div class="stat-card">
-        <span class="label">Kutilayotgan buyurtmalar</span>
-        <span class="value">{{ pending_orders }}</span>
+    <div class="stat-card primary">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <span class="label">Kutilmoqda</span>
+                <span class="value">{{ pending_orders }}</span>
+            </div>
+            <i class="fas fa-clock" style="font-size: 1.5rem; color: var(--primary); opacity: 0.5;"></i>
+        </div>
     </div>
-    <div class="stat-card">
-        <span class="label">Band stollar</span>
-        <span class="value">{{ occupied_tables }} / {{ total_tables }}</span>
+    <div class="stat-card success">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <span class="label">Band Stollar</span>
+                <span class="value">{{ occupied_tables }} / {{ total_tables }}</span>
+            </div>
+            <i class="fas fa-chair" style="font-size: 1.5rem; color: var(--success); opacity: 0.5;"></i>
+        </div>
     </div>
-    <div class="stat-card">
-        <span class="label">Chaqiruvlar</span>
-        <span class="value">{{ waiter_calls_count }}</span>
+    <div class="stat-card danger">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <span class="label">Faol Chaqiruvlar</span>
+                <span class="value">{{ waiter_calls_count }}</span>
+            </div>
+            <i class="fas fa-bell" style="font-size: 1.5rem; color: var(--danger); opacity: 0.5;"></i>
+        </div>
     </div>
-    <div class="stat-card">
-        <span class="label">Bugungi yakunlangan</span>
-        <span class="value">{{ today_completed }}</span>
+    <div class="stat-card warning">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start;">
+            <div>
+                <span class="label">Bugungi Yakunlangan</span>
+                <span class="value">{{ today_completed }}</span>
+            </div>
+            <i class="fas fa-check-circle" style="font-size: 1.5rem; color: var(--warning); opacity: 0.5;"></i>
+        </div>
     </div>
 </div>
 
-<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+<div class="grid-layout">
     <!-- Recent Orders -->
     <div class="card">
         <div class="card-header">
-            <h3>So'nggi buyurtmalar</h3>
-            <a href="{% url 'core:staff_orders' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Barchasi</a>
+            <h3>So'nggi Buyurtmalar</h3>
+            <a href="{% url 'core:staff_orders' %}" style="color: var(--primary); font-size: 0.875rem; font-weight: 600;">Hammasi</a>
         </div>
         <div class="table-responsive">
             <table>
                 <thead>
                     <tr>
-                        <th>ID</th>
+                        <th>Buyurtma</th>
                         <th>Stol</th>
                         <th>Summa</th>
                         <th>Holat</th>
@@ -43,13 +172,13 @@
                 <tbody>
                     {% for order in pending_orders_list %}
                     <tr>
-                        <td>#{{ order.id }}</td>
-                        <td>Stol {{ order.table.number }}</td>
-                        <td>{{ order.total_price }}</td>
-                        <td><span class="badge badge-info">{{ order.get_status_display }}</span></td>
+                        <td style="font-weight: 600;">#{{ order.id }}</td>
+                        <td><span class="badge badge-success">Stol {{ order.table.number }}</span></td>
+                        <td style="color: var(--primary); font-weight: 700;">{{ order.total_price }} so'm</td>
+                        <td><span class="badge badge-pending">{{ order.get_status_display }}</span></td>
                     </tr>
                     {% empty %}
-                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Buyurtmalar yo'q</td></tr>
+                    <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--secondary);">Faol buyurtmalar yo'q</td></tr>
                     {% endfor %}
                 </tbody>
             </table>
@@ -59,44 +188,30 @@
     <!-- Active Waiter Calls -->
     <div class="card">
         <div class="card-header">
-            <h3>Faol chaqiruvlar</h3>
-            <a href="{% url 'core:staff_calls' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Barchasi</a>
+            <h3>Mijozlar Chaqiruvi</h3>
         </div>
-        <div class="table-responsive">
-            <table>
-                <thead>
-                    <tr>
-                        <th>Stol</th>
-                        <th>Sabab</th>
-                        <th>Vaqt</th>
-                        <th></th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for call in waiter_calls_list %}
-                    <tr>
-                        <td>Stol {{ call.table.number }}</td>
-                        <td>{{ call.reason|default:"Chaqiruv" }}</td>
-                        <td>{{ call.created_at|timesince }} oldin</td>
-                        <td>
-                            <form action="{% url 'core:resolve_call' call.id %}" method="POST">
-                                {% csrf_token %}
-                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;">Javob</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% empty %}
-                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Chaqiruvlar yo'q</td></tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+        <div style="padding: 24px;">
+            {% for call in waiter_calls_list %}
+            <div style="background: #fff5f5; border: 1px solid #feb2b2; padding: 16px; border-radius: 12px; margin-bottom: 12px; display: flex; justify-content: space-between; align-items: center;">
+                <div>
+                    <h4 style="margin: 0; color: #c53030;">Stol #{{ call.table.number }}</h4>
+                    <small style="color: #9b2c2c;">{{ call.created_at|timesince }} oldin</small>
+                </div>
+                <form action="{% url 'core:resolve_call' call.id %}" method="POST">
+                    {% csrf_token %}
+                    <button type="submit" class="btn-action btn-resolve">Javob berish</button>
+                </form>
+            </div>
+            {% empty %}
+            <div style="text-align: center; color: var(--secondary);">Hozircha chaqiruvlar yo'q</div>
+            {% endfor %}
         </div>
     </div>
 </div>
 
-<div class="card" style="margin-top: 20px;">
+<div class="card" style="margin-top: 24px;">
     <div class="card-header">
-        <h3>Band stollar</h3>
+        <h3>Faol Sessiyalar (Band Stollar)</h3>
     </div>
     <div class="table-responsive">
         <table>
@@ -104,22 +219,22 @@
                 <tr>
                     <th>Stol #</th>
                     <th>Holat</th>
-                    <th>Boshlangan vaqt</th>
+                    <th>Vaqt</th>
                     <th>Harakat</th>
                 </tr>
             </thead>
             <tbody>
                 {% for table in active_tables %}
                 <tr>
-                    <td>Stol {{ table.number }}</td>
-                    <td><span class="badge badge-warning">Band</span></td>
+                    <td style="font-weight: 600;">Stol {{ table.number }}</td>
+                    <td><span class="badge badge-pending">Band</span></td>
                     <td>{{ table.current_session_start|date:"H:i" }} ({{ table.current_session_start|timesince }} oldin)</td>
                     <td>
-                        <a href="{% url 'core:complete_session' table.id %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Yakunlash</a>
+                        <a href="{% url 'core:complete_session' table.id %}" class="btn-action" style="background: #f1f5f9; color: #475569;">Yakunlash</a>
                     </td>
                 </tr>
                 {% empty %}
-                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Hozircha hamma stollar bo'sh</td></tr>
+                <tr><td colspan="4" style="text-align: center; padding: 40px; color: var(--secondary);">Hozircha hamma stollar bo'sh</td></tr>
                 {% endfor %}
             </tbody>
         </table>
