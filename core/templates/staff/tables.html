@@ -1,0 +1,42 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Stollar - Cafe Admin{% endblock %}
+{% block page_title %}Stollar boshqaruvi{% endblock %}
+
+{% block content %}
+<div class="card" style="margin-bottom: 30px; padding: 20px;">
+    <h3 style="margin-bottom: 15px;"><i class="fas fa-plus-circle"></i> Yangi stol qo'shish</h3>
+    <form action="{% url 'core:add_table' %}" method="POST" style="display: flex; gap: 15px; align-items: flex-end;">
+        {% csrf_token %}
+        <div style="flex: 1;">
+            <label style="display: block; font-size: 0.8rem; color: var(--text-muted); margin-bottom: 5px;">Stol raqami</label>
+            <input type="number" name="number" required class="btn btn-outline" style="width: 100%; text-align: left; background: rgba(255,255,255,0.05);">
+        </div>
+        <button type="submit" class="btn btn-primary" style="padding: 12px 25px;">
+            <i class="fas fa-plus"></i> Qo'shish
+        </button>
+    </form>
+</div>
+
+<div class="stats-grid">
+    {% for table in tables %}
+    <div class="card" style="padding: 20px; display: flex; flex-direction: column; align-items: center; text-align: center;">
+        <i class="fas fa-chair" style="font-size: 2rem; color: {% if table.status == 'free' %}var(--success){% elif table.status == 'occupied' %}var(--danger){% else %}var(--warning){% endif %}; margin-bottom: 10px;"></i>
+        <h3 style="margin-bottom: 5px;">Stol #{{ table.number }}</h3>
+        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 15px;">{{ table.get_status_display }}</p>
+        
+        <form action="{% url 'core:update_table_status' table.id %}" method="POST" style="width: 100%;">
+            {% csrf_token %}
+            <select name="status" onchange="this.form.submit()" class="btn btn-outline" style="width: 100%; font-size: 0.8rem; margin-bottom: 10px;">
+                <option value="free" {% if table.status == 'free' %}selected{% endif %}>Bo'shatish</option>
+                <option value="occupied" {% if table.status == 'occupied' %}selected{% endif %}>Band qilish</option>
+                <option value="reserved" {% if table.status == 'reserved' %}selected{% endif %}>Bron qilish</option>
+                <option value="cleaning" {% if table.status == 'cleaning' %}selected{% endif %}>Tozalash</option>
+            </select>
+        </form>
+        
+        <a href="{% url 'core:menu' table.id %}" target="_blank" class="btn btn-outline" style="width: 100%; font-size: 0.75rem;"><i class="fas fa-qrcode"></i> QR menyu</a>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %}

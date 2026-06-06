@@ -1,0 +1,51 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Chaqiruvlar - Cafe Admin{% endblock %}
+{% block page_title %}Ofitsiant chaqiruvlari{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Stol</th>
+                    <th>Sabab</th>
+                    <th>Vaqt</th>
+                    <th>Holat</th>
+                    <th>Harakat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for call in calls %}
+                <tr>
+                    <td><strong>Stol {{ call.table.number }}</strong></td>
+                    <td>{{ call.reason|default:"Chaqiruv" }}</td>
+                    <td>{{ call.created_at|date:"H:i" }} ({{ call.created_at|timesince }} oldin)</td>
+                    <td>
+                        {% if call.is_answered %}
+                        <span class="badge badge-success">Javob berildi</span>
+                        {% else %}
+                        <span class="badge badge-danger">Kutilmoqda</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        {% if not call.is_answered %}
+                        <form action="{% url 'core:resolve_call' call.id %}" method="POST" style="display: flex; gap: 5px;">
+                            {% csrf_token %}
+                            <input type="text" name="reply_message" placeholder="Javob xabari..." class="btn btn-outline" style="padding: 4px 10px; font-size: 0.8rem; width: 150px;">
+                            <button type="submit" class="btn btn-primary">Javob berish</button>
+                        </form>
+                        {% else %}
+                        <span style="font-size: 0.8rem; color: var(--text-muted);">{{ call.answered_at|date:"H:i" }} da yopilgan</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="5" style="text-align: center; padding: 40px; color: var(--text-muted);">Hozircha chaqiruvlar yo'q</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,72 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Buyurtmalar - Cafe Admin{% endblock %}
+{% block page_title %}Buyurtmalar boshqaruvi{% endblock %}
+
+{% block top_actions %}
+<div style="display: flex; gap: 10px;">
+    <a href="?status=pending" class="btn btn-outline {% if current_status == 'pending' %}active{% endif %}">Kutilmoqda</a>
+    <a href="?status=preparing" class="btn btn-outline {% if current_status == 'preparing' %}active{% endif %}">Tayyorlanmoqda</a>
+    <a href="?status=ready" class="btn btn-outline {% if current_status == 'ready' %}active{% endif %}">Tayyor</a>
+    <a href="?" class="btn btn-outline {% if not current_status %}active{% endif %}">Faol hammasi</a>
+</div>
+{% endblock %}
+
+{% block content %}
+<div class="card">
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Stol</th>
+                    <th>Taomlar</th>
+                    <th>Jami</th>
+                    <th>Vaqt</th>
+                    <th>Holat</th>
+                    <th>Harakat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for order in orders %}
+                <tr>
+                    <td>#{{ order.id }}</td>
+                    <td><strong>Stol {{ order.table.number }}</strong></td>
+                    <td>
+                        <ul style="list-style: none; font-size: 0.8rem;">
+                            {% for item in order.items.all %}
+                            <li>{{ item.menu_item.name }} x {{ item.quantity }}</li>
+                            {% endfor %}
+                        </ul>
+                    </td>
+                    <td><strong>{{ order.total_price }}</strong></td>
+                    <td>{{ order.created_at|date:"H:i" }}</td>
+                    <td>
+                        <span class="badge 
+                            {% if order.status == 'pending' %}badge-warning
+                            {% elif order.status == 'preparing' %}badge-info
+                            {% elif order.status == 'ready' %}badge-success
+                            {% else %}badge-info{% endif %}">
+                            {{ order.get_status_display }}
+                        </span>
+                    </td>
+                    <td>
+                        <form action="{% url 'core:update_order_status' order.id %}" method="POST" style="display: flex; gap: 5px;">
+                            {% csrf_token %}
+                            <select name="status" class="btn btn-outline" style="padding: 2px 5px; font-size: 0.75rem;">
+                                {% for code, name in status_choices %}
+                                <option value="{{ code }}" {% if order.status == code %}selected{% endif %}>{{ name }}</option>
+                                {% endfor %}
+                            </select>
+                            <button type="submit" class="btn btn-primary" style="padding: 2px 8px;"><i class="fas fa-check"></i></button>
+                        </form>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="7" style="text-align: center; padding: 40px; color: var(--text-muted);">Buyurtmalar topilmadi</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

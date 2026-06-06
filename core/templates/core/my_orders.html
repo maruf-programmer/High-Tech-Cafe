@@ -1,0 +1,208 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Buyurtmalarim - Stol #{{ table.number }}{% endblock %}
+{% block header_title %}Buyurtmalarim{% endblock %}
+
+{% block extra_css %}
+<style>
+    .order-card { padding: 20px; margin-bottom: 15px; }
+
+    .order-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 15px;
+    }
+
+    .order-header .order-id { font-weight: 600; }
+    .order-header .order-date { font-size: 0.8rem; color: rgba(255,255,255,0.5); }
+
+    .order-items { margin-bottom: 15px; }
+
+    .order-item-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+        font-size: 0.9rem;
+    }
+
+    .order-item-row:last-child { border: none; }
+    .order-item-row .name { color: rgba(255,255,255,0.8); }
+    .order-item-row .detail { color: rgba(255,255,255,0.5); font-size: 0.8rem; }
+
+    .order-footer {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding-top: 10px;
+        border-top: 1px solid rgba(255,255,255,0.1);
+    }
+
+    .order-total { font-size: 1.1rem; font-weight: 600; color: #f39c12; }
+
+    .progress-bar {
+        margin: 15px 0;
+        background: rgba(255,255,255,0.1);
+        border-radius: 10px;
+        height: 8px;
+        overflow: hidden;
+    }
+
+    .progress-bar .progress {
+        height: 100%;
+        border-radius: 10px;
+        transition: width 0.5s;
+    }
+
+    .progress-pending { width: 10%; background: #f39c12; }
+    .progress-confirmed { width: 25%; background: #3498db; }
+    .progress-preparing { width: 50%; background: #e67e22; }
+    .progress-ready { width: 75%; background: #2ecc71; }
+    .progress-delivered { width: 90%; background: #1abc9c; }
+    .progress-completed { width: 100%; background: #27ae60; }
+
+    .status-steps {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.7rem;
+        color: rgba(255,255,255,0.4);
+        margin-bottom: 15px;
+    }
+
+    .status-steps .step.active { color: #f39c12; }
+
+    .wait-time {
+        font-size: 0.85rem;
+        color: rgba(255,255,255,0.6);
+        margin-bottom: 10px;
+    }
+
+    .wait-time i { color: #f39c12; margin-right: 5px; }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 15px;
+    }
+
+    .action-buttons a, .action-buttons button { flex: 1; text-align: center; padding: 12px; font-size: 0.85rem; }
+
+    .empty-orders { text-align: center; padding: 60px 20px; }
+    .empty-orders i { font-size: 4rem; color: rgba(255,255,255,0.2); margin-bottom: 20px; }
+
+    .quick-actions {
+        display: flex;
+        gap: 10px;
+        margin-top: 30px;
+        flex-wrap: wrap;
+    }
+
+    .quick-action {
+        padding: 12px 20px;
+        background: rgba(255,255,255,0.05);
+        border: 1px solid rgba(255,255,255,0.2);
+        border-radius: 12px;
+        color: #fff;
+        text-decoration: none;
+        font-size: 0.85rem;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: all 0.3s;
+    }
+
+    .quick-action:hover {
+        border-color: #00b894;
+        background: rgba(0,184,148,0.1);
+        box-shadow: 0 10px 30px rgba(0,184,148,0.2);
+        color: #fff;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div style="margin-bottom: 20px;">
+        <a href="{% url 'core:menu' table_id %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Menyuga qaytish</a>
+    </div>
+
+    {% if orders %}
+    {% for order in orders %}
+    <div class="order-card card">
+        <div class="order-header">
+            <span class="order-id">Buyurtma #{{ order.id }}</span>
+            <span class="badge badge-{{ order.status }}">{{ order.get_status_display }}</span>
+        </div>
+
+        <div class="progress-bar">
+            <div class="progress progress-{{ order.status }}"></div>
+        </div>
+
+        <div class="status-steps">
+            <span class="step {% if order.status != 'cancelled' %}active{% endif %}">Kutilmoqda</span>
+            <span class="step {% if order.status == 'confirmed' or order.status == 'preparing' or order.status == 'ready' or order.status == 'delivered' or order.status == 'completed' %}active{% endif %}">Tasdiqlandi</span>
+            <span class="step {% if order.status == 'preparing' or order.status == 'ready' or order.status == 'delivered' or order.status == 'completed' %}active{% endif %}">Tayyorlanmoqda</span>
+            <span class="step {% if order.status == 'ready' or order.status == 'delivered' or order.status == 'completed' %}active{% endif %}">Tayyor</span>
+            <span class="step {% if order.status == 'delivered' or order.status == 'completed' %}active{% endif %}">Yetkazildi</span>
+        </div>
+
+        {% if order.status == 'pending' %}
+        <div class="wait-time"><i class="fas fa-hourglass-half"></i> So'rovingiz tez orada qabul qilinadi. Iltimos kuting...</div>
+        {% elif order.status == 'confirmed' %}
+        <div class="wait-time"><i class="fas fa-check-circle"></i> Buyurtmangiz tasdiqlandi! Tayyorlanish boshlandi.</div>
+        {% elif order.status == 'preparing' %}
+        <div class="wait-time"><i class="fas fa-fire"></i> Taomlar tayyorlanmoqda. Tahminiy vaqt: {{ order.items.first.menu_item.prep_time_display }}</div>
+        {% elif order.status == 'ready' %}
+        <div class="wait-time"><i class="fas fa-bell"></i> Buyurtmangiz tayyor! Tez orada yetkaziladi.</div>
+        {% elif order.status == 'delivered' %}
+        <div class="wait-time" style="color: #2ecc71;"><i class="fas fa-check-double"></i> Buyurtma yetkazildi. Yoqimli ishtaha!</div>
+        {% elif order.status == 'completed' %}
+        <div class="wait-time" style="color: #27ae60;"><i class="fas fa-star"></i> Buyurtma yakunlandi. Fikringizni qoldiring!</div>
+        {% elif order.status == 'cancelled' %}
+        <div class="wait-time" style="color: #e74c3c;"><i class="fas fa-times-circle"></i> Buyurtma bekor qilindi.</div>
+        {% endif %}
+
+        <div class="order-items">
+            {% for item in order.items.all %}
+            <div class="order-item-row">
+                <div>
+                    <div class="name">{{ item.menu_item.name }}</div>
+                    <div class="detail">{{ item.servings }} kishilik · {{ item.quantity }} dona</div>
+                </div>
+                <span>{{ item.subtotal }} so'm</span>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="order-footer">
+            <span class="order-total">Jami: {{ order.total_price }} so'm</span>
+            <span style="font-size: 0.75rem; color: rgba(255,255,255,0.4);">{{ order.created_at|date:"H:i" }}</span>
+        </div>
+
+        {% if order.status == 'delivered' or order.status == 'completed' %}
+        <div class="action-buttons">
+            {% if order.status == 'delivered' %}
+            <a href="{% url 'orders:payment_page' order.id %}" class="btn btn-success"><i class="fas fa-credit-card"></i> To'lov</a>
+            {% endif %}
+            <a href="{% url 'feedback:submit_feedback' table_id order.id %}" class="btn btn-primary"><i class="fas fa-comment"></i> Fikr bildirish</a>
+        </div>
+        {% endif %}
+    </div>
+    {% endfor %}
+
+    <div class="quick-actions">
+        <a href="{% url 'orders:call_waiter' table_id %}" class="quick-action"><i class="fas fa-bell"></i> Ofitsiantni chaqirish</a>
+        <a href="{% url 'feedback:submit_feedback' table_id 0 %}" class="quick-action"><i class="fas fa-comment-dots"></i> Umumiy fikr</a>
+    </div>
+
+    {% else %}
+    <div class="empty-orders">
+        <i class="fas fa-clipboard-list"></i>
+        <h3>Buyurtmalar yo'q</h3>
+        <p style="color: rgba(255,255,255,0.5); margin-bottom: 20px;">Hali buyurtma bermagansiz</p>
+        <a href="{% url 'core:menu' table_id %}" class="btn btn-primary"><i class="fas fa-utensils"></i> Menyuni ko'rish</a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

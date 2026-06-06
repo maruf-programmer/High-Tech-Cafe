@@ -1,0 +1,402 @@
+{% extends 'core/base.html' %}
+
+{% block title %}{{ item.name }} - Stol #{{ table.number }}{% endblock %}
+{% block header_title %}{{ item.name }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .item-hero {
+        position: relative;
+        height: 200px;
+        margin-bottom: 20px;
+        border-radius: 16px;
+        overflow: hidden;
+        background: linear-gradient(135deg, #2c3e50, #34495e);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 5rem;
+        color: rgba(255, 255, 255, 0.2);
+    }
+
+    .item-hero .back-btn {
+        position: absolute;
+        top: 15px;
+        left: 15px;
+        width: 40px;
+        height: 40px;
+        background: rgba(0, 0, 0, 0.5);
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        text-decoration: none;
+        font-size: 1.2rem;
+    }
+
+    .item-info { padding: 0 0 20px; }
+
+    .item-info h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+    }
+
+    .item-info .price {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f39c12;
+        margin-bottom: 20px;
+    }
+
+    .info-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+        margin-bottom: 20px;
+    }
+
+    .info-item {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+    }
+
+    .info-item i {
+        font-size: 1.5rem;
+        color: #f39c12;
+        margin-bottom: 8px;
+    }
+
+    .info-item .label {
+        font-size: 0.7rem;
+        color: rgba(255, 255, 255, 0.5);
+        text-transform: uppercase;
+        margin-bottom: 5px;
+    }
+
+    .info-item .value {
+        font-size: 0.95rem;
+        font-weight: 600;
+    }
+
+    .description-box {
+        background: rgba(255, 255, 255, 0.05);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .description-box h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .description-box h3 i { color: #f39c12; }
+
+    .description-box p {
+        color: rgba(255, 255, 255, 0.7);
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+
+    .vitamins-box {
+        background: linear-gradient(135deg, rgba(46, 204, 113, 0.1), rgba(39, 174, 96, 0.1));
+        border: 1px solid rgba(46, 204, 113, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .vitamins-box h3 {
+        font-size: 1rem;
+        margin-bottom: 10px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        color: #2ecc71;
+    }
+
+    .vitamin-tags {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px;
+    }
+
+    .vitamin-tag {
+        background: rgba(46, 204, 113, 0.2);
+        color: #2ecc71;
+        padding: 5px 12px;
+        border-radius: 15px;
+        font-size: 0.8rem;
+    }
+
+    .order-form {
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.1);
+        border-radius: 16px;
+        padding: 20px;
+        margin-bottom: 20px;
+    }
+
+    .order-form h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .order-form h3 i { color: #f39c12; }
+
+    .form-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        gap: 15px;
+        margin-bottom: 15px;
+    }
+
+    .form-group label {
+        display: block;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 8px;
+    }
+
+    .form-group select,
+    .form-group input,
+    .form-group textarea {
+        width: 100%;
+        padding: 12px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 10px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.9rem;
+        outline: none;
+        transition: border-color 0.3s;
+    }
+
+    .form-group select:focus,
+    .form-group input:focus,
+    .form-group textarea:focus {
+        border-color: #f39c12;
+    }
+
+    .form-group select option { background: #1a1a2e; }
+
+    .quantity-selector {
+        display: flex;
+        align-items: center;
+        gap: 15px;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 10px;
+        padding: 8px;
+        width: fit-content;
+    }
+
+    .quantity-selector button {
+        width: 36px;
+        height: 36px;
+        border-radius: 8px;
+        border: none;
+        background: rgba(255, 255, 255, 0.2);
+        color: #fff;
+        font-size: 1.2rem;
+        cursor: pointer;
+        transition: 
+         background 0.3s;
+    }
+
+    .quantity-selector button:hover { background: #f39c12; }
+
+    .quantity-selector .qty-value {
+        font-size: 1.2rem;
+        font-weight: 600;
+        min-width: 30px;
+        text-align: center;
+    }
+
+    .total-preview {
+        background: rgba(243, 156, 18, 0.1);
+        border: 1px solid rgba(243, 156, 18, 0.3);
+        border-radius: 12px;
+        padding: 15px;
+        text-align: center;
+        margin: 20px 0;
+    }
+
+    .total-preview .total-label {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .total-preview .total-value {
+        font-size: 1.5rem;
+        font-weight: 700;
+        color: #f39c12;
+    }
+
+    .add-to-cart-btn {
+        width: 100%;
+        padding: 16px;
+        font-size: 1.1rem;
+        margin-top: 10px;
+    }
+
+    @media (max-width: 768px) {
+        .form-row { grid-template-columns: 1fr; }
+        .item-hero { height: 200px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="item-hero">
+        <i class="fas fa-utensils"></i>
+        <a href="{% url 'core:menu' table_id %}" class="back-btn"><i class="fas fa-arrow-left"></i></a>
+    </div>
+
+    <div class="item-info">
+        <h2>{{ item.name }}</h2>
+        <div class="price">{{ item.price }} so'm</div>
+
+        <div class="info-grid">
+            <div class="info-item">
+                <i class="fas fa-clock"></i>
+                <div class="label">Tayyorlanish</div>
+                <div class="value">{{ item.prep_time_display }}</div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-weight-hanging"></i>
+                <div class="label">Og'irligi</div>
+                <div class="value" id="totalWeight">{{ item.weight_grams }}g</div>
+            </div>
+            <div class="info-item">
+                <i class="fas fa-fire-alt"></i>
+                <div class="label">Kaloriya</div>
+                <div class="value" id="totalCalories">{{ item.calories }} kcal</div>
+            </div>
+        </div>
+
+        <div class="description-box">
+            <h3><i class="fas fa-info-circle"></i> Taom haqida</h3>
+            <p>{{ item.description }}</p>
+        </div>
+
+        {% if item.ingredients %}
+        <div class="description-box">
+            <h3><i class="fas fa-list"></i> Tarkibi</h3>
+            <p>{{ item.ingredients }}</p>
+        </div>
+        {% endif %}
+
+        {% if item.vitamins %}
+        <div class="vitamins-box">
+            <h3><i class="fas fa-heart"></i> Vitaminlar va foydali moddalar</h3>
+            <div class="vitamin-tags">
+                {% for vitamin in item.vitamins.split %}
+                <span class="vitamin-tag">{{ vitamin }}</span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+        <form method="post" action="{% url 'core:add_to_cart' table_id item.id %}">
+            {% csrf_token %}
+            <div class="order-form">
+                <h3><i class="fas fa-shopping-cart"></i> Buyurtma berish</h3>
+
+                <div class="form-row">
+                    <div class="form-group">
+                        <label>Kishilik soni (porsiya)</label>
+                        <div style="display: flex; gap: 10px;">
+                            <select id="servingsSelect" style="flex: 2;">
+                                {% for opt in serving_options %}
+                                <option value="{{ opt }}">{{ opt }} kishilik</option>
+                                {% endfor %}
+                            </select>
+                            <input type="number" id="manualServings" placeholder="Boshqa..." min="1" style="flex: 1;">
+                        </div>
+                        <input type="hidden" name="servings" id="servings" value="{{ serving_options.0 }}">
+                    </div>
+                    <div class="form-group">
+                        <label>Soni (necha porsiyali taomdan nechtaligi)</label>
+                        <div class="quantity-selector">
+                            <button type="button" onclick="changeQty(-1)">-</button>
+                            <span class="qty-value" id="qtyValue">1</span>
+                            <button type="button" onclick="changeQty(1)">+</button>
+                        </div>
+                        <input type="hidden" name="quantity" id="quantity" value="1">
+                    </div>
+                </div>
+
+                <div class="form-group" style="margin-bottom: 15px;">
+                    <label>Qo'shimcha eslatma (ixtiyoriy)</label>
+                    <textarea name="notes" rows="2" placeholder="Masalan: achchiqroq bo'lsin..."></textarea>
+                </div>
+
+                <div class="total-preview">
+                    <div class="total-label">Jami narx:</div>
+                    <div class="total-value" id="totalPrice">{{ item.price }} so'm</div>
+                </div>
+
+                <button type="submit" class="btn btn-primary add-to-cart-btn">
+                    <i class="fas fa-cart-plus"></i> Savatga qo'shish
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const basePrice = {{ item.price }};
+    const baseWeight = {{ item.weight_grams }};
+    const baseCalories = {{ item.calories }};
+    let qty = 1;
+    let servings = parseInt(document.getElementById('servings').value) || 1;
+
+    function changeQty(delta) {
+        qty = Math.max(1, qty + delta);
+        document.getElementById('qtyValue').textContent = qty;
+        document.getElementById('quantity').value = qty;
+        updateStats();
+    }
+
+    function updateStats() {
+        const total = basePrice * qty * servings;
+        const weight = baseWeight * qty * servings;
+        const calories = baseCalories * qty * servings;
+
+        document.getElementById('totalPrice').textContent = total.toLocaleString() + ' so\'m';
+        document.getElementById('totalWeight').textContent = weight.toLocaleString() + 'g';
+        document.getElementById('totalCalories').textContent = calories.toLocaleString() + ' kcal';
+        document.getElementById('servings').value = servings;
+    }
+
+    document.getElementById('servingsSelect').addEventListener('change', function() {
+        servings = parseInt(this.value) || 1;
+        document.getElementById('manualServings').value = '';
+        updateStats();
+    });
+
+    document.getElementById('manualServings').addEventListener('input', function() {
+        if (this.value && this.value > 0) {
+            servings = parseInt(this.value);
+            document.getElementById('servingsSelect').value = ''; 
+            updateStats();
+        }
+    });
+
+    updateStats();
+</script>
+{% endblock %}

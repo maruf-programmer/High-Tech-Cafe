@@ -1,0 +1,282 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Menyu - Stol #{{ table.number }}{% endblock %}
+{% block header_title %}Stol #{{ table.number }}{% endblock %}
+
+{% block extra_css %}
+<style>
+    .menu-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 20px;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .menu-header .search-box {
+        display: flex;
+        align-items: center;
+        background: rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        padding: 8px 15px;
+        flex: 1;
+        max-width: 400px;
+    }
+
+    .menu-header .search-box input {
+        background: transparent;
+        border: none;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.9rem;
+        width: 100%;
+        outline: none;
+        margin-left: 10px;
+    }
+
+    .menu-header .search-box input::placeholder { color: rgba(255,255,255,0.5); }
+
+    .categories-nav {
+        display: flex;
+        overflow-x: auto;
+        gap: 10px;
+        padding: 10px 0 20px;
+        -webkit-overflow-scrolling: touch;
+    }
+
+    .categories-nav::-webkit-scrollbar { height: 3px; }
+    .categories-nav::-webkit-scrollbar-thumb { background: #f39c12; border-radius: 10px; }
+
+    .cat-btn {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 18px;
+        background: rgba(255, 255, 255, 0.08);
+        border: 1px solid rgba(255, 255, 255, 0.15);
+        border-radius: 25px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.85rem;
+        cursor: pointer;
+        white-space: nowrap;
+        transition: all 0.3s;
+    }
+
+    .cat-btn:hover, .cat-btn.active {
+        background: linear-gradient(135deg, #f39c12, #e74c3c);
+        border-color: transparent;
+    }
+
+    .cat-btn i { color: #f39c12; }
+    .cat-btn.active i { color: #fff; }
+
+    .category-section { margin-bottom: 30px; }
+
+    .category-title {
+        font-size: 1.2rem;
+        margin-bottom: 15px;
+        padding-left: 5px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .category-title .prep-time {
+        font-size: 0.75rem;
+        color: rgba(255, 255, 255, 0.5);
+        font-weight: 400;
+    }
+
+    .menu-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+        gap: 15px;
+    }
+
+    .menu-card {
+        cursor: pointer;
+        text-decoration: none;
+        color: inherit;
+        display: block;
+    }
+
+    .menu-card .card {
+        padding: 20px;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .menu-card:hover .card {
+        transform: translateY(-5px);
+        box-shadow: 0 10px 30px rgba(243, 156, 18, 0.2);
+    }
+
+    .menu-card .card-icon {
+        font-size: 2rem;
+        color: #f39c12;
+        margin-bottom: 15px;
+        text-align: center;
+    }
+
+    .menu-card .card-body h3 { font-size: 1rem; margin-bottom: 8px; }
+
+    .menu-card .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 5px;
+        font-size: 0.8rem;
+    }
+
+    .menu-card .info-row .prep { color: rgba(255, 255, 255, 0.6); }
+    .menu-card .info-row .prep i { color: #f39c12; margin-right: 5px; }
+    .menu-card .info-row .calories { color: rgba(255, 255, 255, 0.5); }
+
+    .menu-card .price {
+        font-size: 1.1rem;
+        font-weight: 600;
+        color: #f39c12;
+    }
+
+    .menu-card .popular-badge {
+        display: inline-block;
+        background: linear-gradient(135deg, #f39c12, #e74c3c);
+        color: #fff;
+        padding: 3px 8px;
+        border-radius: 10px;
+        font-size: 0.7rem;
+        margin-left: 8px;
+    }
+
+    .cart-float {
+        position: fixed;
+        bottom: 20px;
+        right: 20px;
+        z-index: 99;
+    }
+
+    .cart-float a {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 15px 25px;
+        background: linear-gradient(135deg, #f39c12, #e74c3c);
+        border-radius: 30px;
+        color: #fff;
+        text-decoration: none;
+        font-weight: 600;
+        box-shadow: 0 8px 25px rgba(243, 156, 18, 0.4);
+        transition: all 0.3s;
+    }
+
+    .cart-float a:hover { transform: translateY(-3px); }
+
+    .cart-float .cart-count {
+        background: #fff;
+        color: #e74c3c;
+        width: 24px;
+        height: 24px;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    @media (max-width: 768px) {
+        .menu-grid { grid-template-columns: 1fr; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="menu-header">
+        <div class="search-box">
+            <i class="fas fa-search" style="color: rgba(255,255,255,0.5);"></i>
+            <input type="text" id="searchInput" placeholder="Taom qidirish...">
+        </div>
+        <a href="{% url 'core:home' %}" class="btn btn-secondary"><i class="fas fa-arrow-left"></i> Ortga</a>
+    </div>
+
+    <div class="categories-nav">
+        <button class="cat-btn active" data-cat="all"><i class="fas fa-th"></i> Barchasi</button>
+        {% for cat in categories %}
+        <button class="cat-btn" data-cat="cat-{{ cat.id }}"><i class="fas fa-utensils"></i> {{ cat.name }}</button>
+        {% endfor %}
+    </div>
+
+    {% for category in categories %}
+    <div class="category-section" id="cat-{{ category.id }}">
+        <h2 class="category-title">
+            {{ category.name }}
+            <span class="prep-time"><i class="fas fa-clock"></i> Tayyorlanish: {{ category.prep_time_minutes }} daq</span>
+        </h2>
+        <div class="menu-grid">
+            {% for item in category.items.all %}
+            {% if item.is_available %}
+            <a href="{% url 'core:item_detail' table_id item.id %}" class="menu-card">
+                <div class="card">
+                    <div class="card-icon">
+                        <i class="fas fa-utensils"></i>
+                    </div>
+                    <div class="card-body">
+                        <h3>
+                            {{ item.name }}
+                            {% if item.is_popular %}<span class="popular-badge"><i class="fas fa-fire"></i> Mashhur</span>{% endif %}
+                        </h3>
+                        <div class="info-row">
+                            <span class="prep"><i class="fas fa-clock"></i> {{ item.prep_time_display }}</span>
+                            <span class="calories">{{ item.calories }} kcal</span>
+                        </div>
+                        <div class="price">{{ item.price }} so'm</div>
+                    </div>
+                </div>
+            </a>
+            {% endif %}
+            {% empty %}
+            <p style="color: rgba(255,255,255,0.5); grid-column: 1 / -1;">Bu kategoriyada taomlar yo'q</p>
+            {% endfor %}
+        </div>
+    </div>
+    {% empty %}
+    <p style="text-align: center; color: rgba(255,255,255,0.5);">Hozircha menyular mavjud emas</p>
+    {% endfor %}
+
+    {% if cart_count > 0 %}
+    <div class="cart-float">
+        <a href="{% url 'core:cart' table_id %}">
+            <i class="fas fa-shopping-cart"></i> Savat
+            <span class="cart-count">{{ cart_count }}</span>
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    const searchInput = document.getElementById('searchInput');
+    const catBtns = document.querySelectorAll('.cat-btn');
+    const sections = document.querySelectorAll('.category-section');
+
+    searchInput?.addEventListener('input', function() {
+        const query = this.value.toLowerCase();
+        document.querySelectorAll('.menu-card').forEach(card => {
+            const name = card.querySelector('h3').textContent.toLowerCase();
+            card.style.display = name.includes(query) ? '' : 'none';
+        });
+    });
+
+    catBtns.forEach(btn => {
+        btn.addEventListener('click', function() {
+            catBtns.forEach(b => b.classList.remove('active'));
+            this.classList.add('active');
+            const cat = this.dataset.cat;
+            sections.forEach(s => s.style.display = cat === 'all' ? '' : (s.id === cat ? '' : 'none'));
+        });
+    });
+</script>
+{% endblock %}

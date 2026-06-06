@@ -1,0 +1,314 @@
+{% extends 'core/base.html' %}
+
+{% block title %}To'lov - Buyurtma #{{ order.id }}{% endblock %}
+{% block header_title %}To'lov{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --green: #00b894;
+        --green-light: #55efc4;
+        --green-dark: #00a085;
+    }
+
+    body { background: radial-gradient(ellipse at top, #0a3d2e 0%, #0a0e27 100%); }
+
+    .payment-container {
+        max-width: 600px;
+        margin: 0 auto;
+        padding: 20px;
+    }
+
+    .payment-3d {
+        perspective: 1000px;
+        margin-bottom: 30px;
+    }
+
+    .card-3d {
+        width: 100%;
+        height: 200px;
+        position: relative;
+        transform-style: preserve-3d;
+        transition: transform 0.8s;
+        cursor: pointer;
+    }
+
+    .card-3d.flipped { transform: rotateY(180deg); }
+
+    .card-face {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        border-radius: 20px;
+        backface-visibility: hidden;
+        padding: 25px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+    }
+
+    .card-front {
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        box-shadow: 0 20px 60px rgba(0, 184, 148, 0.3);
+    }
+
+    .card-back {
+        background: linear-gradient(135deg, var(--green-dark), var(--green));
+        box-shadow: 0 20px 60px rgba(0, 184, 148, 0.3);
+        transform: rotateY(180deg);
+    }
+
+    .card-chip {
+        width: 40px;
+        height: 30px;
+        background: linear-gradient(135deg, #f1c40f, #f39c12);
+        border-radius: 6px;
+        margin-bottom: 15px;
+    }
+
+    .card-number {
+        font-size: 1.3rem;
+        letter-spacing: 3px;
+        font-family: 'Courier New', monospace;
+    }
+
+    .card-details {
+        display: flex;
+        justify-content: space-between;
+        font-size: 0.75rem;
+        opacity: 0.8;
+    }
+
+    .card-stripe {
+        height: 40px;
+        background: rgba(0, 0, 0, 0.3);
+        margin: 20px 0;
+    }
+
+    .card-cvv-area {
+        text-align: right;
+        padding: 0 40px;
+    }
+
+    .card-cvv {
+        background: #fff;
+        color: #333;
+        padding: 5px 15px;
+        border-radius: 4px;
+        font-family: 'Courier New', monospace;
+        font-size: 0.9rem;
+        display: inline-block;
+    }
+
+    .payment-info {
+        padding: 25px;
+        margin-bottom: 20px;
+    }
+
+    .payment-info h2 {
+        font-size: 1.3rem;
+        margin-bottom: 15px;
+        color: var(--green-light);
+    }
+
+    .payment-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 10px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.9rem;
+    }
+
+    .payment-row .label { color: rgba(255, 255, 255, 0.5); }
+    .payment-row .value { font-weight: 600; }
+
+    .payment-row.total {
+        border: none;
+        font-size: 1.3rem;
+        font-weight: 700;
+        color: var(--green-light);
+        padding-top: 15px;
+    }
+
+    .status-box {
+        padding: 20px;
+        border-radius: 12px;
+        margin: 20px 0;
+        text-align: center;
+    }
+
+    .status-pending {
+        background: rgba(243, 156, 18, 0.1);
+        border: 1px solid rgba(243, 156, 18, 0.3);
+        color: #f39c12;
+    }
+
+    .status-success {
+        background: rgba(0, 184, 148, 0.1);
+        border: 1px solid rgba(0, 184, 148, 0.3);
+        color: var(--green-light);
+    }
+
+    .status-anim {
+        width: 80px;
+        height: 80px;
+        border-radius: 50%;
+        margin: 0 auto 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 2.5rem;
+        animation: successPop 0.5s ease;
+    }
+
+    .status-pending .status-anim {
+        background: rgba(243, 156, 18, 0.2);
+        animation: spin 1s linear infinite;
+    }
+
+    .status-success .status-anim {
+        background: rgba(0, 184, 148, 0.2);
+    }
+
+    @keyframes successPop {
+        0% { transform: scale(0); }
+        70% { transform: scale(1.3); }
+        100% { transform: scale(1); }
+    }
+
+    @keyframes spin {
+        to { transform: rotate(360deg); }
+    }
+
+    .flip-hint {
+        text-align: center;
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+        margin-top: 10px;
+        cursor: pointer;
+    }
+
+    .flip-hint:hover { color: var(--green-light); }
+
+    .success-actions {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .success-actions .btn { flex: 1; text-align: center; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="payment-container">
+    <div class="payment-3d">
+        <div class="card-3d" id="card3d" onclick="this.classList.toggle('flipped')">
+            <div class="card-face card-front">
+                <div>
+                    <div class="card-chip"></div>
+                    <div class="card-number">•••• •••• •••• {{ order.id|stringformat:"04d" }}</div>
+                </div>
+                <div class="card-details">
+                    <div>
+                        <div style="font-size: 0.6rem; opacity: 0.6;">STOL</div>
+                        <div>#{{ order.table.number }}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.6rem; opacity: 0.6;">SUMMA</div>
+                        <div>{{ order.total_price }} so'm</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card-face card-back">
+                <div class="card-stripe"></div>
+                <div class="card-cvv-area">
+                    <div style="font-size: 0.6rem; opacity: 0.6; margin-bottom: 5px;">CVV</div>
+                    <div class="card-cvv">***</div>
+                </div>
+            </div>
+        </div>
+        <div class="flip-hint" onclick="document.getElementById('card3d').classList.toggle('flipped')">
+            <i class="fas fa-sync-alt"></i> Kartani aylantirish uchun bosing
+        </div>
+    </div>
+
+    <div class="payment-info card">
+        <h2><i class="fas fa-receipt"></i> To'lov ma'lumotlari</h2>
+
+        <div class="payment-row">
+            <span class="label">Buyurtma ID</span>
+            <span class="value">#{{ order.id }}</span>
+        </div>
+        <div class="payment-row">
+            <span class="label">Stol</span>
+            <span class="value">#{{ order.table.number }}</span>
+        </div>
+        <div class="payment-row">
+            <span class="label">Sana</span>
+            <span class="value">{{ order.created_at|date:"d.m.Y H:i" }}</span>
+        </div>
+        <div class="payment-row">
+            <span class="label">To'lov usuli</span>
+            <span class="value">{{ payment.get_method_display|default:"Kutilmoqda" }}</span>
+        </div>
+        <div class="payment-row">
+            <span class="label">Holat</span>
+            <span class="value badge {% if payment.status == 'success' %}badge-delivered{% else %}badge-pending{% endif %}">
+                {{ payment.get_status_display|default:"Kutilmoqda" }}
+            </span>
+        </div>
+        <div class="payment-row total">
+            <span>Jami:</span>
+            <span>{{ order.total_price }} so'm</span>
+        </div>
+    </div>
+
+    {% if payment %}
+    <div class="status-box {% if payment.status == 'success' %}status-success{% else %}status-pending{% endif %}">
+        <div class="status-anim">
+            {% if payment.status == 'success' %}
+            <i class="fas fa-check"></i>
+            {% else %}
+            <i class="fas fa-spinner"></i>
+            {% endif %}
+        </div>
+        {% if payment.status == 'success' %}
+        <h3>To'lov muvaffaqiyatli!</h3>
+        <p>Trnzaksiya: {{ payment.transaction_id }}</p>
+        {% else %}
+        <h3>To'lov qayta ishlanmoqda...</h3>
+        <p>Iltimos kuting</p>
+        {% endif %}
+    </div>
+    {% endif %}
+
+    {% if not payment or payment.status != 'success' %}
+    <form method="post" action="{% url 'orders:process_payment' order.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="method" value="card">
+        <button type="submit" class="btn btn-success" style="width: 100%; padding: 18px; font-size: 1.1rem;">
+            <i class="fas fa-lock"></i> To'lovni amalga oshirish
+        </button>
+    </form>
+    {% else %}
+    <div class="success-actions">
+        <a href="{% url 'core:complete_session' order.table.id %}?order_id={{ order.id }}" class="btn btn-success">
+            <i class="fas fa-check"></i> Yakunlash
+        </a>
+        <a href="{% url 'core:home' %}" class="btn btn-secondary">
+            <i class="fas fa-home"></i> Bosh sahifa
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    // Auto-refresh if pending
+    {% if payment and payment.status == 'pending' %}
+    setTimeout(() => location.reload(), 3000);
+    {% endif %}
+</script>
+{% endblock %}

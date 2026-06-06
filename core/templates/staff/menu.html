@@ -1,0 +1,49 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Menyu - Cafe Admin{% endblock %}
+{% block page_title %}Menyu boshqaruvi{% endblock %}
+
+{% block top_actions %}
+<a href="{% url 'core:menu_item_add' %}" class="btn btn-primary"><i class="fas fa-plus"></i> Yangi taom</a>
+{% endblock %}
+
+{% block content %}
+{% for category in categories %}
+<div class="card">
+    <div class="card-header">
+        <h3>{{ category.name }}</h3>
+        <span class="badge badge-info">{{ category.items.count }} ta taom</span>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Taom nomi</th>
+                    <th>Narxi</th>
+                    <th>Holat</th>
+                    <th>Harakat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in category.items.all %}
+                <tr>
+                    <td><strong>{{ item.name }}</strong></td>
+                    <td>{{ item.price }} so'm</td>
+                    <td>
+                        {% if item.is_available %}
+                        <span class="badge badge-success">Mavjud</span>
+                        {% else %}
+                        <span class="badge badge-danger">Tugagan</span>
+                        {% endif %}
+                    </td>
+                    <td>
+                        <a href="{% url 'core:menu_item_edit' item.id %}" class="btn btn-outline" style="padding: 4px 10px;"><i class="fas fa-edit"></i></a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endfor %}
+{% endblock %}

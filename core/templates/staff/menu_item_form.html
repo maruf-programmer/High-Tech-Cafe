@@ -1,0 +1,45 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}{% if item %}Tahrirlash{% else %}Yangi taom{% endif %} - Cafe Admin{% endblock %}
+{% block page_title %}{% if item %}Taomni tahrirlash{% else %}Yangi taom qo'shish{% endif %}{% endblock %}
+
+{% block content %}
+<div class="card" style="max-width: 600px; margin: 0 auto; padding: 30px;">
+    <form method="POST">
+        {% csrf_token %}
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Taom nomi</label>
+            <input type="text" name="name" value="{{ item.name|default:'' }}" required class="btn btn-outline" style="width: 100%; text-align: left;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Kategoriya</label>
+            <select name="category" required class="btn btn-outline" style="width: 100%; text-align: left;">
+                {% for cat in categories %}
+                <option value="{{ cat.id }}" {% if item.category.id == cat.id %}selected{% endif %}>{{ cat.name }}</option>
+                {% endfor %}
+            </select>
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Narxi (so'm)</label>
+            <input type="number" name="price" value="{{ item.price|default:'' }}" required class="btn btn-outline" style="width: 100%; text-align: left;">
+        </div>
+
+        <div style="margin-bottom: 20px;">
+            <label style="display: block; margin-bottom: 8px; font-weight: 500;">Tavsif</label>
+            <textarea name="description" rows="4" class="btn btn-outline" style="width: 100%; text-align: left;">{{ item.description|default:'' }}</textarea>
+        </div>
+
+        <div style="margin-bottom: 30px; display: flex; align-items: center; gap: 10px;">
+            <input type="checkbox" name="is_available" id="is_available" {% if item.is_available or not item %}checked{% endif %}>
+            <label for="is_available" style="font-weight: 500;">Sotuvda mavjud</label>
+        </div>
+
+        <div style="display: flex; gap: 10px;">
+            <button type="submit" class="btn btn-primary" style="flex: 1;">Saqlash</button>
+            <a href="{% url 'core:staff_menu' %}" class="btn btn-outline" style="flex: 1; justify-content: center;">Bekor qilish</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

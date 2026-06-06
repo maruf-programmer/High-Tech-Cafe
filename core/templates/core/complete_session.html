@@ -1,0 +1,294 @@
+{% extends 'core/base.html' %}
+
+{% block title %}Stolni yakunlash - Stol #{{ table.number }}{% endblock %}
+{% block header_title %}Stolni yakunlash{% endblock %}
+
+{% block extra_css %}
+<style>
+    :root {
+        --green: #00b894;
+        --green-light: #55efc4;
+        --green-dark: #00a085;
+        --red: #e74c3c;
+        --orange: #f39c12;
+    }
+
+    .session-container {
+        padding: 20px;
+        max-width: 700px;
+        margin: 0 auto;
+    }
+
+    .session-card {
+        padding: 30px;
+        text-align: center;
+        margin-bottom: 20px;
+        border-color: rgba(0, 184, 148, 0.3) !important;
+    }
+
+    .session-icon {
+        font-size: 4rem;
+        color: var(--green);
+        margin-bottom: 20px;
+        animation: bounce 1s infinite alternate;
+    }
+
+    @keyframes bounce {
+        from { transform: translateY(0); }
+        to { transform: translateY(-10px); }
+    }
+
+    .session-card h2 {
+        font-size: 1.5rem;
+        margin-bottom: 10px;
+        color: var(--green-light);
+    }
+
+    .session-card p {
+        color: rgba(255, 255, 255, 0.6);
+        margin-bottom: 20px;
+    }
+
+    .orders-summary {
+        background: rgba(0, 184, 148, 0.05);
+        border: 1px solid rgba(0, 184, 148, 0.2);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+        text-align: left;
+    }
+
+    .orders-summary h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: var(--green-light);
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .order-summary-row {
+        display: flex;
+        justify-content: space-between;
+        padding: 8px 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        font-size: 0.9rem;
+    }
+
+    .order-summary-row:last-child { border: none; }
+    .order-summary-row .label { color: rgba(255, 255, 255, 0.6); }
+    .order-summary-row .value { font-weight: 600; }
+
+    .total-box {
+        background: linear-gradient(135deg, rgba(0, 184, 148, 0.2), rgba(0, 206, 201, 0.2));
+        border: 1px solid rgba(0, 184, 148, 0.3);
+        border-radius: 12px;
+        padding: 20px;
+        margin: 20px 0;
+    }
+
+    .total-box .total-label {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.6);
+    }
+
+    .total-box .total-amount {
+        font-size: 2.5rem;
+        font-weight: 700;
+        color: var(--green-light);
+        margin: 10px 0;
+    }
+
+    .total-box .total-note {
+        font-size: 0.8rem;
+        color: rgba(255, 255, 255, 0.4);
+    }
+
+    .payment-methods {
+        margin: 25px 0;
+    }
+
+    .payment-methods h3 {
+        font-size: 1rem;
+        margin-bottom: 15px;
+        color: rgba(255, 255, 255, 0.8);
+    }
+
+    .payment-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+        gap: 10px;
+    }
+
+    .payment-btn {
+        padding: 15px 10px;
+        background: rgba(255, 255, 255, 0.05);
+        border: 2px solid rgba(255, 255, 255, 0.1);
+        border-radius: 12px;
+        color: #fff;
+        font-family: inherit;
+        font-size: 0.85rem;
+        cursor: pointer;
+        transition: all 0.3s;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .payment-btn i {
+        font-size: 1.5rem;
+        color: var(--green);
+    }
+
+    .payment-btn:hover, .payment-btn.active {
+        border-color: var(--green);
+        background: rgba(0, 184, 148, 0.1);
+        box-shadow: 0 10px 30px rgba(0, 184, 148, 0.2);
+    }
+
+    .action-buttons {
+        display: flex;
+        gap: 15px;
+        margin-top: 25px;
+    }
+
+    .action-buttons .btn { flex: 1; padding: 16px; font-size: 1rem; }
+
+    .success-animation {
+        text-align: center;
+        padding: 40px 20px;
+    }
+
+    .checkmark {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--green), var(--green-dark));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        margin: 0 auto 25px;
+        font-size: 3rem;
+        color: #fff;
+        animation: scaleIn 0.5s ease;
+    }
+
+    @keyframes scaleIn {
+        0% { transform: scale(0); }
+        70% { transform: scale(1.2); }
+        100% { transform: scale(1); }
+    }
+
+    .session-timer {
+        font-size: 0.9rem;
+        color: rgba(255, 255, 255, 0.5);
+        margin-top: 15px;
+    }
+
+    .session-timer i { color: var(--orange); margin-right: 5px; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="session-container">
+    {% if success %}
+    <div class="success-animation">
+        <div class="checkmark"><i class="fas fa-check"></i></div>
+        <h2>Stol bo'shlandi!</h2>
+        <p style="color: rgba(255,255,255,0.6);">Stol #{{ table.number }} endi bo'sh holatda</p>
+        <a href="{% url 'core:home' %}" class="btn btn-success" style="margin-top: 20px;">
+            <i class="fas fa-home"></i> Bosh sahifaga qaytish
+        </a>
+    </div>
+    {% else %}
+    <div class="session-card card">
+        <div class="session-icon"><i class="fas fa-chair"></i></div>
+        <h2>Stol #{{ table.number }} yakunlanmoqda</h2>
+        <p>Joriy sessiyani yakunlang va to'lovni amalga oshiring</p>
+
+        {% if table.current_session_start %}
+        <div class="session-timer">
+            <i class="fas fa-clock"></i>
+            Sessiya boshlangan: {{ table.current_session_start|timesince }} oldin
+        </div>
+        {% endif %}
+    </div>
+
+    {% if orders %}
+    <div class="orders-summary">
+        <h3><i class="fas fa-receipt"></i> Buyurtmalar</h3>
+        {% for order in orders %}
+        <div class="order-summary-row">
+            <span class="label">Buyurtma #{{ order.id }}</span>
+            <span class="value">{{ order.total_price }} so'm</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="total-box">
+        <div class="total-label">Jami to'lov summasi:</div>
+        <div class="total-amount" id="totalAmount">0 so'm</div>
+        <div class="total-note">Barcha buyurtmalar va xizmatlarni o'z ichiga oladi</div>
+    </div>
+
+    <div class="payment-methods">
+        <h3>To'lov usulini tanlang:</h3>
+        <div class="payment-grid">
+            <button class="payment-btn active" onclick="selectPayment(this, 'cash')" type="button">
+                <i class="fas fa-money-bill-wave"></i>
+                Naqd pul
+            </button>
+            <button class="payment-btn" onclick="selectPayment(this, 'card')" type="button">
+                <i class="fas fa-credit-card"></i>
+                Karta
+            </button>
+            <button class="payment-btn" onclick="selectPayment(this, 'click')" type="button">
+                <i class="fas fa-mobile-alt"></i>
+                Click
+            </button>
+            <button class="payment-btn" onclick="selectPayment(this, 'payme')" type="button">
+                <i class="fas fa-wallet"></i>
+                Payme
+            </button>
+            <button class="payment-btn" onclick="selectPayment(this, 'uzum')" type="button">
+                <i class="fas fa-university"></i>
+                Uzum Bank
+            </button>
+        </div>
+    </div>
+
+    <form method="post" action="{% url 'core:complete_session' table.id %}">
+        {% csrf_token %}
+        <input type="hidden" name="method" id="paymentMethod" value="cash">
+
+        <div class="action-buttons">
+            <button type="submit" name="action" value="pay" class="btn btn-success">
+                <i class="fas fa-check-circle"></i> To'lov qilish va yakunlash
+            </button>
+            <button type="submit" name="action" value="free" class="btn btn-secondary">
+                <i class="fas fa-times"></i> Bepul (bekor qilish)
+            </button>
+        </div>
+    </form>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function selectPayment(btn, method) {
+        document.querySelectorAll('.payment-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        document.getElementById('paymentMethod').value = method;
+    }
+
+    // Calculate total
+    let total = 0;
+    {% for order in orders %}
+    total += {{ order.total_price|default:0 }};
+    {% endfor %}
+    document.getElementById('totalAmount').textContent = total.toLocaleString() + ' so\'m';
+</script>
+{% endblock %}

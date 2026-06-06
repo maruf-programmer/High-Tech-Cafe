@@ -1,0 +1,128 @@
+{% extends 'staff/base_staff.html' %}
+
+{% block title %}Dashboard - Cafe Admin{% endblock %}
+{% block page_title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="stats-grid">
+    <div class="stat-card">
+        <span class="label">Kutilayotgan buyurtmalar</span>
+        <span class="value">{{ pending_orders }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="label">Band stollar</span>
+        <span class="value">{{ occupied_tables }} / {{ total_tables }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="label">Chaqiruvlar</span>
+        <span class="value">{{ waiter_calls_count }}</span>
+    </div>
+    <div class="stat-card">
+        <span class="label">Bugungi yakunlangan</span>
+        <span class="value">{{ today_completed }}</span>
+    </div>
+</div>
+
+<div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px;">
+    <!-- Recent Orders -->
+    <div class="card">
+        <div class="card-header">
+            <h3>So'nggi buyurtmalar</h3>
+            <a href="{% url 'core:staff_orders' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Barchasi</a>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>Stol</th>
+                        <th>Summa</th>
+                        <th>Holat</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for order in pending_orders_list %}
+                    <tr>
+                        <td>#{{ order.id }}</td>
+                        <td>Stol {{ order.table.number }}</td>
+                        <td>{{ order.total_price }}</td>
+                        <td><span class="badge badge-info">{{ order.get_status_display }}</span></td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Buyurtmalar yo'q</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Active Waiter Calls -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Faol chaqiruvlar</h3>
+            <a href="{% url 'core:staff_calls' %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Barchasi</a>
+        </div>
+        <div class="table-responsive">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Stol</th>
+                        <th>Sabab</th>
+                        <th>Vaqt</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for call in waiter_calls_list %}
+                    <tr>
+                        <td>Stol {{ call.table.number }}</td>
+                        <td>{{ call.reason|default:"Chaqiruv" }}</td>
+                        <td>{{ call.created_at|timesince }} oldin</td>
+                        <td>
+                            <form action="{% url 'core:resolve_call' call.id %}" method="POST">
+                                {% csrf_token %}
+                                <button type="submit" class="btn btn-primary" style="padding: 4px 10px; font-size: 0.75rem;">Javob</button>
+                            </form>
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Chaqiruvlar yo'q</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<div class="card" style="margin-top: 20px;">
+    <div class="card-header">
+        <h3>Band stollar</h3>
+    </div>
+    <div class="table-responsive">
+        <table>
+            <thead>
+                <tr>
+                    <th>Stol #</th>
+                    <th>Holat</th>
+                    <th>Boshlangan vaqt</th>
+                    <th>Harakat</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for table in active_tables %}
+                <tr>
+                    <td>Stol {{ table.number }}</td>
+                    <td><span class="badge badge-warning">Band</span></td>
+                    <td>{{ table.current_session_start|date:"H:i" }} ({{ table.current_session_start|timesince }} oldin)</td>
+                    <td>
+                        <a href="{% url 'core:complete_session' table.id %}" class="btn btn-outline" style="padding: 4px 10px; font-size: 0.75rem;">Yakunlash</a>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr><td colspan="4" style="text-align: center; color: var(--text-muted);">Hozircha hamma stollar bo'sh</td></tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}
